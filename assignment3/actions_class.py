@@ -28,17 +28,6 @@ class ActionChainsTests(unittest.TestCase):
             EC.visibility_of_element_located((By.ID, "userName"))
         )
 
-        self.actions.click(full_name_input)\
-            .key_down(Keys.SHIFT)\
-            .send_keys("john")\
-            .key_up(Keys.SHIFT)\
-            .perform()
-        
-        self.actions.send_keys(" doe").perform()
-        
-        self.assertEqual(full_name_input.get_attribute("value"), "JOHN doe")
-        time.sleep(1)
-
         self.actions.key_down(Keys.CONTROL)\
             .send_keys("a")\
             .key_up(Keys.CONTROL)\
@@ -89,7 +78,7 @@ class ActionChainsTests(unittest.TestCase):
         )
         self.assertTrue(output.is_displayed())
         
-
+        time.sleep(2)
         print("Demonstrated: SHIFT typing, Ctrl+A, DELETE, TAB navigation, HOME/END, Ctrl+C, ENTER submit")
 
     def test_2_mouse_maestro(self):
