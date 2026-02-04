@@ -1,30 +1,29 @@
 from behave import given, when, then
 import time
 
-# --- ШАГИ ДЛЯ ПОИСКА ---
+# --- SEARCH STEPS ---
 
-@given('я открываю сайт Aviasales')
+@given('I open the Aviasales website')
 def step_open_site(context):
     context.search_page.open()
     context.search_page.disable_booking_checkbox()
 
-@when('я ищу билет из "{origin}" в "{destination}"')
+@when('I search for a ticket from "{origin}" to "{destination}"')
 def step_search_flight(context, origin, destination):
-    # Кусок кода из твоего пункта #3
+    # Code snippet from your item #3
     context.search_page.fill_search_form(origin, destination)
     context.search_page.select_date()
     context.search_page.click_search()
 
-@then('я вижу список результатов')
+@then('I see a list of results')
 def step_see_results(context):
     context.results_page.wait_for_results()
 
-# --- ШАГИ ДЛЯ БРОНИРОВАНИЯ (САМОЕ ВАЖНОЕ) ---
+# --- BOOKING STEPS
 
-@given('я уже нашел билеты из "{origin}" в "{destination}"')
+@given('I have already found tickets from "{origin}" to "{destination}"')
 def step_precondition_search(context, origin, destination):
-    # ЭТОТ ШАГ ВОССТАНАВЛИВАЕТ ПОСЛЕДОВАТЕЛЬНОСТЬ!
-    # Он делает open -> search -> wait, чтобы мы были готовы выбирать билет
+    # It does open -> search -> wait, so we are ready to select a ticket
     context.search_page.open()
     context.search_page.disable_booking_checkbox()
     context.search_page.fill_search_form(origin, destination)
@@ -32,62 +31,62 @@ def step_precondition_search(context, origin, destination):
     context.search_page.click_search()
     context.results_page.wait_for_results()
 
-@when('я выбираю первый билет и жму купить')
+@when('I select the first ticket and click buy')
 def step_select_and_buy(context):
-    # Сохраняем ID окна
+    # Save the window ID
     context.original_window = context.driver.current_window_handle
     context.results_page.select_first_ticket()
     context.results_page.click_buy_button()
 
-@then('открывается вкладка бронирования')
+@then('the booking tab opens')
 def step_verify_tab(context):
     context.booking_page.switch_to_new_window(context.original_window)
 
-@given('я нахожусь на странице оформления бронирования (рейс {origin}-{dest})')
+@given('I am on the booking page (flight {origin}-{dest})')
 def step_precondition_full_flow(context, origin, dest):
-    # СУПЕР-ШАГ: Выполняет ВСЁ, что было до страницы бронирования
-    # 1. Поиск
+    # SUPER-STEP: Executes EVERYTHING before the booking page
+    # 1. Search
     context.search_page.open()
     context.search_page.disable_booking_checkbox()
     context.search_page.fill_search_form(origin, dest)
     context.search_page.select_date()
     context.search_page.click_search()
-    # 2. Выбор
+    # 2. Select
     context.results_page.wait_for_results()
     context.results_page.select_first_ticket()
     context.original_window = context.driver.current_window_handle
     context.results_page.click_buy_button()
-    # 3. Переход
+    # 3. Switch
     context.booking_page.switch_to_new_window(context.original_window)
 
-@when('я заполняю контакты: "{email}", "{phone}"')
+@when('I fill in contact details: "{email}", "{phone}"')
 def step_fill_contacts(context, email, phone):
     context.booking_page.fill_contact_info(email, phone)
 
-@when('я заполняю пассажира: "{name}", "{lastname}"')
+@when('I fill in passenger details: "{name}", "{lastname}"')
 def step_fill_passenger(context, name, lastname):
-    # Данные рождения берем хардкодом, как у тебя было в коде
+    # Birth date is hardcoded as in your code
     context.booking_page.fill_passenger_info(name, lastname, 2, 12, 2005)
 
-@when('я заполняю паспорт: "{passport}", гражданство "{nationality}"')
+@when('I fill in passport details: "{passport}", nationality "{nationality}"')
 def step_fill_docs(context, passport, nationality):
     context.booking_page.fill_passport_info(passport, 15, 3, 2032)
     context.booking_page.select_nationality(nationality)
 
-@then('я успешно выбираю тариф Comfort')
+@then('I successfully select the Comfort package')
 def step_finish(context):
     context.booking_page.select_comfort_package()
-    time.sleep(5) # Чтобы препод успел увидеть результат
+    time.sleep(5)
 
-# --- ШАГИ С ИСПОЛЬЗОВАНИЕМ EXCEL ---
+# --- STEPS USING EXCEL ---
 from excel import ExcelReader
 
-@given('я загружаю тестовые данные из Excel "{filename}" (строка {row})')
+@given('I load test data from Excel "{filename}" (row {row})')
 def step_load_data(context, filename, row):
     context.test_data = ExcelReader.get_data(filename, int(row))
-    print(f"Данные загружены для пассажира: {context.test_data['name']}")
+    print(f"Data loaded for passenger: {context.test_data['name']}")
 
-@when('я ищу билет используя данные из Excel')
+@when('I search for a ticket using data from Excel')
 def step_search_flight_excel(context):
     origin = context.test_data['origin']
     destination = context.test_data['destination']
@@ -95,40 +94,40 @@ def step_search_flight_excel(context):
     context.search_page.select_date()
     context.search_page.click_search()
 
-@given('я дошел до страницы бронирования с данными из Excel')
+@given('I have reached the booking page with data from Excel')
 def step_precondition_full_flow_excel(context):
     origin = context.test_data['origin']
     dest = context.test_data['destination']
     
-    # 1. Поиск
+    # 1. Search
     context.search_page.open()
     context.search_page.disable_booking_checkbox()
     context.search_page.fill_search_form(origin, dest)
     context.search_page.select_date()
     context.search_page.click_search()
     
-    # 2. Выбор
+    # 2. Select
     context.results_page.wait_for_results()
     context.results_page.select_first_ticket()
     context.original_window = context.driver.current_window_handle
     context.results_page.click_buy_button()
     
-    # 3. Переход
+    # 3. Switch
     context.booking_page.switch_to_new_window(context.original_window)
 
-@when('я заполняю контактные данные из Excel')
+@when('I fill in contact details from Excel')
 def step_fill_contacts_excel(context):
     email = context.test_data['email']
     phone = context.test_data['phone']
     context.booking_page.fill_contact_info(email, phone)
 
-@when('я заполняю данные пассажира из Excel')
+@when('I fill in passenger details from Excel')
 def step_fill_passenger_excel(context):
     name = context.test_data['name']
     lastname = context.test_data['lastname']
     context.booking_page.fill_passenger_info(name, lastname, 2, 12, 2005)
 
-@when('я заполняю паспортные данные из Excel')
+@when('I fill in passport details from Excel')
 def step_fill_docs_excel(context):
     passport = context.test_data['passport']
     nationality = context.test_data['nationality']

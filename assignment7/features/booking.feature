@@ -1,19 +1,16 @@
 @regression
-Feature: Бронирование по данным из Excel
+Feature: Booking using data from Excel
 
-  Scenario: Полное заполнение формы пассажира
-    # Сначала грузим данные
-    Given я загружаю тестовые данные из Excel "data.xlsx" (строка 2)
-    # Потом проходим путь до бронирования с этими данными
-    And я дошел до страницы бронирования с данными из Excel
+  Scenario: Complete passenger form filling
+    Given I load test data from Excel "data.xlsx" (row 2)
+    And I have reached the booking page with data from Excel
     
-    # Теперь заполняем поля значениями из файла
-    When я заполняю контактные данные из Excel
-    And я заполняю данные пассажира из Excel
-    And я заполняю паспортные данные из Excel
-    Then я успешно выбираю тариф Comfort
+    When I fill in contact details from Excel
+    And I fill in passenger details from Excel
+    And I fill in passport details from Excel
+    Then I successfully select the Comfort package
 
-  Scenario: Проверка перехода на страницу бронирования
-    Given я уже нашел билеты из "Астана" в "Уральск"
-    When я выбираю первый билет и жму купить
-    Then открывается вкладка бронирования
+  Scenario: Verify navigation to the booking page
+    Given I have already found tickets from "Астана" to "Уральск"
+    When I select the first ticket and click buy
+    Then the booking tab opens
